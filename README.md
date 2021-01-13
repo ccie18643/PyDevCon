@@ -2,7 +2,7 @@
 
 Goal of this project is to illustrate various ways of device connectivity for network automation purposes. It will be shown based on program that connects to multiple devices, executes set of commands and records output of those commands.
 
-Device connectivity and command configuation kept is in following format:
+Device connectivity and command configuation is stored in following format. This can be easilly serialized to Json or Yaml.
 
 ```python
 tasks = [
