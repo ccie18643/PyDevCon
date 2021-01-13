@@ -103,3 +103,29 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+### NetDev
+```python
+import asyncio
+import netdev
+
+async def worker(task):
+    async with netdev.create(
+        host=task[0],
+        username=task[1],
+        password=task[2],
+        device_type="terminal"
+    ) as cli:
+        output = {cmd: await cli.send_command(cmd) for cmd in task[3]}
+    return task[0], output
+
+async def poll_devices(tasks):
+    results = await asyncio.gather(*[worker(task) for task in tasks])
+    return {host: output for host, output in results}
+
+def main():
+    print(asyncio.run(poll_devices(tasks)))
+
+if __name__ == "__main__":
+    main()
+```
