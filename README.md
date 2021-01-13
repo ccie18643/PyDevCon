@@ -56,3 +56,26 @@ def poll_devices(tasks):
 def main():
     print(poll_devices(tasks))
 ```
+
+### Netmiko
+```python
+import netmiko
+
+def worker(task):
+    cli =  netmiko.ConnectHandler(
+        ip=task[0],
+        username=task[1],
+        password=task[2],
+        device_type="linux"
+    )
+    return {cmd: cli.send_command(cmd) for cmd in task[3]}
+
+def poll_devices(tasks):
+    return {task[0]: worker(task) for task in tasks}
+
+def main():
+    print(poll_devices(tasks))
+    
+if __name__ == "__main__":
+    main()
+```
