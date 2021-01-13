@@ -40,3 +40,25 @@ def main():
     print(poll_devices(tasks))
 ```
 
+### Paramiko
+```python
+import paramiko
+
+tasks = [
+    ("192.168.9.102", "herman", "Osika123", ("vmstat", "ip a s")),
+    ("192.168.9.103", "herman", "Osika123", ("vmstat", "ip a s")),
+    ("192.168.9.104", "herman", "Osika123", ("vmstat", "ip a s")),
+]
+
+def worker(task):
+    cli = paramiko.SSHClient()
+    cli.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    cli.connect(hostname=task[0], username=task[1], password=task[2])
+    return {cmd: str(cli.exec_command(cmd)[1].read(), encoding="utf8") for cmd in task[3]}
+
+def poll_devices(tasks):
+    return {task[0]: worker(task) for task in tasks}
+
+def main():
+    print(poll_devices(tasks))
+```
