@@ -44,12 +44,6 @@ def main():
 ```python
 import paramiko
 
-tasks = [
-    ("192.168.9.102", "herman", "Osika123", ("vmstat", "ip a s")),
-    ("192.168.9.103", "herman", "Osika123", ("vmstat", "ip a s")),
-    ("192.168.9.104", "herman", "Osika123", ("vmstat", "ip a s")),
-]
-
 def worker(task):
     cli = paramiko.SSHClient()
     cli.set_missing_host_key_policy(paramiko.AutoAddPolicy())
