@@ -13,9 +13,8 @@ tasks = [
 ```
 
 1. Pexpect
-```pyhon3
+```python
 import pexpect
-
 
 def worker(task):
     cli = pexpect.spawn(
@@ -34,10 +33,8 @@ def worker(task):
         output[cmd] = cli.before
     return output
 
-
 def poll_devices(tasks):
     return {task[0]: worker(task) for task in tasks}
-
 
 def main():
     print(poll_devices(tasks))
