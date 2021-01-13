@@ -13,15 +13,8 @@ tasks = [
 ```
 
 1. Pexpect
-```pyhon
+```pyhon3
 import pexpect
-
-
-tasks = [
-    ("192.168.9.102", "herman", "Osika123", ("vmstat", "ip a s")),
-    ("192.168.9.103", "herman", "Osika123", ("vmstat", "ip a s")),
-    ("192.168.9.104", "herman", "Osika123", ("vmstat", "ip a s")),
-]
 
 
 def worker(task):
