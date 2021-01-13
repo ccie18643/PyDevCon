@@ -79,3 +79,26 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+### AsyncSSH
+```python
+import asyncio
+import asyncssh
+
+async def worker(task):
+    async with asyncssh.connect(
+        host=task[0], username=task[1], password=task[2], known_hosts=None
+    ) as cli:
+        output = {cmd: (await cli.run(cmd)).stdout for cmd in task[3]}
+    return task[0], output
+
+async def poll_devices(tasks):
+    results = await asyncio.gather(*[worker(task) for task in tasks])
+    return {host: output for host, output in results}
+
+def main():
+    print(asyncio.run(poll_devices(tasks)))
+
+if __name__ == "__main__":
+    main()
+```
