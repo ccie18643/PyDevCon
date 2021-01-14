@@ -38,7 +38,6 @@ def worker(task):
 def poll_devices(tasks):
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             process_pool = [executor.submit(worker, task) for task in tasks]
-
     results = [task.result() for task in process_pool if not task.exception() and task.result()]
     return {k: v for d in results for k, v in d.items()}
 
@@ -60,7 +59,6 @@ def worker(task):
 def poll_devices(tasks):
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             process_pool = [executor.submit(worker, task) for task in tasks]
-
     results = [task.result() for task in process_pool if not task.exception() and task.result()]
     return {k: v for d in results for k, v in d.items()}
 
