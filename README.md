@@ -13,7 +13,7 @@ tasks = [
 ]
 ```
 
-### Pexpect using separate thead for each worker
+### Pexpect - using separate thead for each worker
 ```python
 import pexpect
 import concurrent.futures
@@ -46,18 +46,23 @@ def main():
     print(poll_devices(tasks))
 ```
 
-### Paramiko
+### Paramiko - using separate thread for each worker
 ```python
 import paramiko
+import concurrent.futures
 
 def worker(task):
     cli = paramiko.SSHClient()
     cli.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     cli.connect(hostname=task[0], username=task[1], password=task[2])
-    return {cmd: str(cli.exec_command(cmd)[1].read(), encoding="utf8") for cmd in task[3]}
+    return {task[0]: {cmd: str(cli.exec_command(cmd)[1].read(), encoding="utf8") for cmd in task[3]}}
 
 def poll_devices(tasks):
-    return {task[0]: worker(task) for task in tasks}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            process_pool = [executor.submit(worker, task) for task in tasks]
+
+    results = [task.result() for task in process_pool if not task.exception() and task.result()]
+    return {k: v for d in results for k, v in d.items()}
 
 def main():
     print(poll_devices(tasks))
