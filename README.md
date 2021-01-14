@@ -69,6 +69,7 @@ def main():
 ### Netmiko - using separate thread for each worker
 ```python
 import netmiko
+import concurrent.futures
 
 def worker(task):
     cli =  netmiko.ConnectHandler(
