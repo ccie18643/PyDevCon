@@ -88,9 +88,6 @@ def poll_devices(tasks):
 
 def main():
     print(poll_devices(tasks))
-    
-if __name__ == "__main__":
-    main()
 ```
 
 ### AsyncSSH - batch of parallel connections handled by each of the cpu cores
