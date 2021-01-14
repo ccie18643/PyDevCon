@@ -97,23 +97,32 @@ if __name__ == "__main__":
 ```python
 import asyncio
 import asyncssh
+import multiprocessing
+import concurrent.futures
 
 async def worker(task):
     async with asyncssh.connect(
         host=task[0], username=task[1], password=task[2], known_hosts=None
     ) as cli:
         output = {cmd: (await cli.run(cmd)).stdout for cmd in task[3]}
-    return task[0], output
+    return {task[0]: output}
 
 async def poll_devices(tasks):
     results = await asyncio.gather(*[worker(task) for task in tasks])
-    return {host: output for host, output in results}
+    return {k: v for d in results for k, v in d.items()}
+
+def start_asyncio(tasks):
+    return asyncio.run(poll_devices(tasks))
+
+def start_processes(tasks):
+    batch_size = len(tasks) // multiprocessing.cpu_count() + 1
+    with concurrent.futures.ProcessPoolExecutor(max_workers=10) as executor:
+        process_pool = [executor.submit(start_asyncio, tasks[n:n + batch_size]) for n in range(0, len(tasks), batch_size)]
+    results = [task.result() for task in process_pool if not task.exception() and task.result()]
+    return {k: v for d in results for k, v in d.items()}
 
 def main():
-    print(asyncio.run(poll_devices(tasks)))
-
-if __name__ == "__main__":
-    main()
+    print(start_processes(tasks))
 ```
 
 ### NetDev
