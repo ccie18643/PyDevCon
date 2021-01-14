@@ -1,6 +1,6 @@
 # PyDevCon
 
-Goal of this project is to illustrate various ways of device connectivity for network automation purposes. It will be shown based on program that connects to multiple devices, executes set of commands and records output of those commands.
+Goal of this project is to illustrate various ways of device connectivity for network automation purposes. It will be shown based on program that connects to multiple devices, executes set of commands and records output of those commands. Connectivity to devices need to be using some form of parallelism.
 
 Device connectivity and command configuation is stored in following format. This can be easilly stored in Json or Yaml formated file.
 
@@ -13,9 +13,10 @@ tasks = [
 ]
 ```
 
-### Pexpect
+### Pexpect using separate thead for each worker
 ```python
 import pexpect
+import concurrent.futures
 
 def worker(task):
     cli = pexpect.spawn(
@@ -32,10 +33,14 @@ def worker(task):
         cli.sendline(cmd)
         cli.expect(r"\$")
         output[cmd] = cli.before
-    return output
+    return {task[0]: output}
 
 def poll_devices(tasks):
-    return {task[0]: worker(task) for task in tasks}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            process_pool = [executor.submit(worker, task) for task in tasks]
+
+    results = [task.result() for task in process_pool if not task.exception() and task.result()]
+    return {k: v for d in results for k, v in d.items()}
 
 def main():
     print(poll_devices(tasks))
