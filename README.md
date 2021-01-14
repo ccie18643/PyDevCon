@@ -66,7 +66,7 @@ def main():
     print(poll_devices(tasks))
 ```
 
-### Netmiko
+### Netmiko - using separate thread for each worker
 ```python
 import netmiko
 
@@ -77,10 +77,13 @@ def worker(task):
         password=task[2],
         device_type="linux"
     )
-    return {cmd: cli.send_command(cmd) for cmd in task[3]}
+    return {task[0]: {cmd: cli.send_command(cmd) for cmd in task[3]}}
 
 def poll_devices(tasks):
-    return {task[0]: worker(task) for task in tasks}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            process_pool = [executor.submit(worker, task) for task in tasks]
+    results = [task.result() for task in process_pool if not task.exception() and task.result()]
+    return {k: v for d in results for k, v in d.items()}
 
 def main():
     print(poll_devices(tasks))
