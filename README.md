@@ -118,7 +118,9 @@ def start_processes(tasks):
     cpu_count = multiprocessing.cpu_count()
     batch_size = len(tasks) // cpu_count + 1
     with concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count) as executor:
-        process_pool = [executor.submit(start_asyncio, tasks[n:n + batch_size]) for n in range(0, len(tasks), batch_size)]
+        process_pool = [
+            executor.submit(start_asyncio, tasks[n:n + batch_size]) for n in range(0, len(tasks), batch_size)
+        ]   
     results = [task.result() for task in process_pool if not task.exception() and task.result()]
     return {k: v for d in results for k, v in d.items()}
 
@@ -154,7 +156,9 @@ def start_processes(tasks):
     cpu_count = multiprocessing.cpu_count()
     batch_size = len(tasks) // cpu_count + 1
     with concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count) as executor:
-        process_pool = [executor.submit(start_asyncio, tasks[n:n + batch_size]) for n in range(0, len(tasks), batch_size)]
+        process_pool = [
+            executor.submit(start_asyncio, tasks[n:n + batch_size]) for n in range(0, len(tasks), batch_size)
+        ]   
     results = [task.result() for task in process_pool if not task.exception() and task.result()]
     return {k: v for d in results for k, v in d.items()}
 
