@@ -1,6 +1,6 @@
 # PyDevCon
 
-Goal of this project is to illustrate various ways of device connectivity for network automation purposes. This will be shown based on program that connects to multiple devices, executes set of commands and records output of those commands. Connectivity to devices need to be using some form of parallelism.
+Goal of this project is to illustrate various ways of device connectivity for network automation purposes. This is shown based on program that in parallel connects to multiple devices, executes set of commands and records output of those commands.
 
 Device connectivity and command configuation is stored in following format. This can be easilly stored in Json or Yaml formated file.
 
