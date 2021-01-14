@@ -13,7 +13,7 @@ tasks = [
 ]
 ```
 
-### Pexpect - using separate thead for each worker
+### Pexpect - separate thread for each connection
 ```python
 import pexpect
 import concurrent.futures
@@ -45,7 +45,7 @@ def main():
     print(poll_devices(tasks))
 ```
 
-### Paramiko - using separate thread for each worker
+### Paramiko - separate thread for each connection
 ```python
 import paramiko
 import concurrent.futures
@@ -66,7 +66,7 @@ def main():
     print(poll_devices(tasks))
 ```
 
-### Netmiko - using separate thread for each worker
+### Netmiko - separate thread for each connection
 ```python
 import netmiko
 import concurrent.futures
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### AsyncSSH - using batch of parallel workers per cpu core
+### AsyncSSH - batch of parallel connections handled by each of the cpu cores
 ```python
 import asyncio
 import asyncssh
@@ -126,10 +126,12 @@ def main():
     print(start_processes(tasks))
 ```
 
-### NetDev
+### NetDev - batch of parallel connections handled by each of the cpu cores
 ```python
 import asyncio
 import netdev
+import multiprocessing
+import concurrent.futures
 
 async def worker(task):
     async with netdev.create(
@@ -139,15 +141,23 @@ async def worker(task):
         device_type="terminal"
     ) as cli:
         output = {cmd: await cli.send_command(cmd) for cmd in task[3]}
-    return task[0], output
+    return {task[0]: output}
 
 async def poll_devices(tasks):
     results = await asyncio.gather(*[worker(task) for task in tasks])
-    return {host: output for host, output in results}
+    return {k: v for d in results for k, v in d.items()}
+
+def start_asyncio(tasks):
+    return asyncio.run(poll_devices(tasks))
+
+def start_processes(tasks):
+    cpu_count = multiprocessing.cpu_count()
+    batch_size = len(tasks) // cpu_count + 1
+    with concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count) as executor:
+        process_pool = [executor.submit(start_asyncio, tasks[n:n + batch_size]) for n in range(0, len(tasks), batch_size)]
+    results = [task.result() for task in process_pool if not task.exception() and task.result()]
+    return {k: v for d in results for k, v in d.items()}
 
 def main():
-    print(asyncio.run(poll_devices(tasks)))
-
-if __name__ == "__main__":
-    main()
+    print(start_processes(tasks))
 ```
