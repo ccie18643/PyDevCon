@@ -1,8 +1,11 @@
 # PyDevCon
 
-Goal of this project is to illustrate various ways of device connectivity for network automation purposes. This is shown based on program that in parallel connects to multiple devices, executes set of commands and records output of those commands.
+### Python connectivity to network devices
+<br>
 
-Device connectivity and command configuation is stored in following format. This can be easilly stored in Json or Yaml formated file.
+This project aims to illustrate various ways of device connectivity for network automation purposes. This is shown based on a program that, in parallel, connects to multiple devices, executes a set of commands, and records the output of those commands.
+
+Device connectivity and command configuration are stored in the following format. This can be easily stored in JSON or YAML formatted files.
 
 ```python
 tasks = [
